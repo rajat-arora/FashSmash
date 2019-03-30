@@ -4,7 +4,7 @@ cache:
   directories:
     - node_modules
 script:
-  - npm lint
+  - npm run lint
 env:
   - CI=true
 
