@@ -1,7 +1,7 @@
 # face-smash
 
 ### DEMO
-https://facesmash.netlify.com
+[Link to FACESMASH DEMO](https://facesmash.netlify.com)
 
 ### Status
 [![Build Status](https://travis-ci.org/rajat-arora/FashSmash.svg?branch=master)](https://travis-ci.org/rajat-arora/FashSmash)

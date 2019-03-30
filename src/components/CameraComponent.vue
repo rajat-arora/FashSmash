@@ -88,7 +88,7 @@ export default {
 
             console.log('Current Id', JSON.stringify(id));
             this.video = await this.setupCamera(id[0].index);
-            video.play();
+            this.video.play();
         },
         async setupCamera(cameraIndex){
              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
