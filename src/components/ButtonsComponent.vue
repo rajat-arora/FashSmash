@@ -46,7 +46,7 @@ export default {
                         console.log(camera)
                         return camera.name == event});
                 console.log('Current Id', JSON.stringify(id));
-                this.$store.dispatch('setVideo',await await this.setupCamera(id[0].index));
+                this.$store.dispatch('setVideo',await this.$parent.setupCamera(id[0].index));
                 video = this.$store.getters.getVideo;
                 video.play();
             }catch(err){
