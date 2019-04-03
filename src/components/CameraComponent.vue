@@ -1,19 +1,25 @@
 <template>
     <v-container  text-xs-center
-      wrap>
-        <h1>Face Away</h1>
+      >
+      <div v-if="loading">
+           <h1 class="typewriter">{{msg}}  </h1>
+            <v-progress-linear :indeterminate="true"></v-progress-linear>
+      </div>
+
+        <h1 v-if="!loading">Face Away</h1>
         <div style="display:none;">
             <video id="video" playsinline style=" -moz-transform: scaleX(-1);
                 -o-transform: scaleX(-1);
                 -webkit-transform: scaleX(-1);
                 transform: scaleX(-1);">
             </video>
-        </div>      
+        </div>     
          <canvas id="output" ref="output" />
 
-        <ButtonsComponent/>
- 
+        <ButtonsComponent v-if="!loading"/>
+    
     </v-container>
+    
     
 </template>
 <script>
@@ -24,13 +30,15 @@ export default {
     data: ()=> {
         return {
             pageBinded: false,
-            videoWidth: 400,
-            videoHeight: 300,
+            loading: true,
+            videoWidth: 500,
+            videoHeight: 400,
             videoPaused: true,
             err: '',
             canvas: '',
             ctx: '',
-            net : ''
+            net : '',
+            msg: 'Loading ..'
         }
     },
     mounted(){
@@ -42,6 +50,8 @@ export default {
     methods: {
         async bindPage(){
             try {
+                this.msg = 'Loading Camera...'
+                await this.sleep(5000);
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 let index = 0;
                 devices.forEach(device => {
@@ -58,9 +68,14 @@ export default {
                 console.log('Available', this.$store.getters.getCameraNames);
                 this.$store.dispatch('setVideo',await this.loadVideo() );
                 this.pageBinded = true;
+                this.msg = 'Starting TensorFlow and loading model...'
+                await this.sleep(4000);
                 this.net = await posenet.load();
                 const video = this.$store.getters.getVideo;
-                this.detectPoseInRealTime(video, this.net);
+                this.msg = 'Feeding camera to model...'
+                await this.sleep(5000);
+                await this.detectPoseInRealTime(video, this.net);
+                this.loading = false;
             } catch(err) {
                 console.error(err);
             }
@@ -69,6 +84,9 @@ export default {
             const video = await this.setupCamera(0);
             video.play();
             return video;
+        },
+        sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         },
         async setupCamera(cameraIndex){
              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -94,15 +112,15 @@ export default {
                 };
             });
         },
-        detectPoseInRealTime(video, net){
+        async detectPoseInRealTime(video, net){
             this.canvas = this.$refs['output'];
             this.ctx = this.canvas.getContext("2d");
             this.canvas.width = 500;
             this.canvas.height = 400;
-            this.poseDetectionFrame();
+            await this.poseDetectionFrame();
         },
         async poseDetectionFrame(net) {
-            const imageScaleFactor = 0.2;
+            const imageScaleFactor = 0.8;
             const outputStride = 8;
             let poses = [];
             let minPoseConfidence;
@@ -118,7 +136,7 @@ export default {
                     );
                 poses.push(pose);
 
-                minPoseConfidence = 0.1;
+                minPoseConfidence = 0.2;
                 minPartConfidence = 0.5;
 
                 this.ctx.clearRect(0, 0, this.videoWidth, this.videoHeight);
@@ -183,5 +201,26 @@ export default {
 }
 </script>
 <style scoped>
+.typewriter {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  border-right: .15em solid orange; /* The typwriter cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .15em; /* Adjust as needed */
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
+}
 
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: orange; }
+}
 </style>
