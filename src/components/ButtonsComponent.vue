@@ -1,19 +1,19 @@
 <template>
-     <v-layout align-center>
-            <v-flex xs8 sm4 text-xs-center>
+     <v-layout align-center row wrap>
+            <v-flex sm12 text-xs-center>
                 <div><v-btn @click="stopVideo()" v-if="videoPaused">Pause Video</v-btn></div>
                 <div><v-btn @click="startVideo()" v-if="!videoPaused">Start Video</v-btn></div>
             </v-flex>
-            <v-flex xs8 sm4 text-xs-center>
+            <v-flex sm12 text-xs-center>
                 <v-select
                     :items="this.$store.getters.getCameraNames"
                     name="label"
-                    label="Select a Camera" 
+                    label="Select a diffrent Camera" 
                     item-text="name"
                     @change="changeCam($event)"
                 ></v-select>
             </v-flex>
-             <v-flex xs8 sm4 text-xs-center>
+             <v-flex sm12 text-xs-center>
                 <v-select
                     :items="this.filters"
                     name="label"
@@ -22,6 +22,7 @@
                     @change="changeFilter($event)"
                 ></v-select>
             </v-flex>
+            
         </v-layout>
 </template>
 
@@ -31,7 +32,7 @@ export default {
         return {
             videoPaused: true,
             camerasAvalible: [],
-            filters: ['none','toaster']
+            filters: ['none','toaster','retro']
 
         }
     },

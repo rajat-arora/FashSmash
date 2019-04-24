@@ -7,7 +7,7 @@ export default new Vuex.Store({
   state: {
     video: '',
     cameraNames: [],
-    filter: ''
+    filter: 'none'
   },
   //not async
   mutations: {
