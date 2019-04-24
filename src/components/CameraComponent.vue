@@ -2,7 +2,7 @@
     <v-container  text-xs-center
       >
       <div v-if="loading">
-           <h1 class="typewriter">{{msg}}  </h1>
+           <h1 class="typewriter" :key="msg">{{msg}}  </h1>
             <v-progress-linear :indeterminate="true"></v-progress-linear>
       </div>
 
@@ -51,7 +51,7 @@ export default {
         async bindPage(){
             try {
                 this.msg = 'Loading Camera...'
-                await this.sleep(5000);
+                await this.sleep(2000);
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 let index = 0;
                 devices.forEach(device => {
@@ -69,11 +69,11 @@ export default {
                 this.$store.dispatch('setVideo',await this.loadVideo() );
                 this.pageBinded = true;
                 this.msg = 'Starting TensorFlow and loading model...'
-                await this.sleep(4000);
+                await this.sleep(2000);
                 this.net = await posenet.load();
                 const video = this.$store.getters.getVideo;
                 this.msg = 'Feeding camera to model...'
-                await this.sleep(5000);
+                await this.sleep(2000);
                 await this.detectPoseInRealTime(video, this.net);
                 this.loading = false;
             } catch(err) {
@@ -127,7 +127,7 @@ export default {
             let minPartConfidence;
             const flipHorizontal = true;
             const video = this.$store.getters.getVideo;
-            if (true) {
+            if (this.pageBinded) {
                const pose = await this.net.estimateSinglePose(
                     video,
                     imageScaleFactor,
@@ -141,7 +141,7 @@ export default {
 
                 this.ctx.clearRect(0, 0, this.videoWidth, this.videoHeight);
 
-                 if (true) {
+                 if (this.pageBinded) {
                     this.ctx.save();
                     this.ctx.scale(-1, 1);
                     this.ctx.translate(-this.videoWidth, 0);
@@ -166,8 +166,39 @@ export default {
             // this.drawSkeleton(keypoints, minPartConfidence, this.ctx);
           }
         });
+  //         var texture = document.createElement('canvas');
+  // var ctxText= texture.getContext('2d');
+  //   texture.width = this.canvas.width;
+  // texture.height = this.canvas.height;
+  //        var gradient = ctxText.createRadialGradient(this.canvas.width / 2, this.canvas.height / 2, 0, this.canvas.width  / 2, this.canvas.height / 2, this.canvas.width   * 0.6);
+
+  //        gradient.addColorStop(0, "#804e0f");
+  //        gradient.addColorStop(1, "#3b003b");
+
+  //       ctxText.fillStyle = gradient;
+  //       ctxText.fillRect(0, 0, this.canvas.width  , this.canvas.height );
+
+  //       var bottom = ctxText.getImageData(0, 0, this.canvas.width, this.canvas.height);
+  // var top    = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
+  // for (var i = 0, size = top.data.length; i < size; i += 4) {
+  //   // red
+  //   top.data[i+0] = 255 - (255 - top.data[i+0]) * (255 - bottom.data[i+0]) / 255;
+
+  //   // green
+  //   top.data[i+1] = 255 - (255 - top.data[i+1]) * (255 - bottom.data[i+1]) / 255;
+  //   // blue
+  //   top.data[i+2] = 255 - (255 - top.data[i+2]) * (255 - bottom.data[i+2]) / 255;
+  //   // the fourth slot is alpha. We don't need that (so skip by 4)
+  // }
+  //   this.ctx.putImageData(top, 0, 0);
+
+
+
+
         poses = null;
       }
+
 
       requestAnimationFrame(this.poseDetectionFrame);
     },

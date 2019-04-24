@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
 import Footer from './components/Footer';
 import CameraComponent from './components/CameraComponent';
 

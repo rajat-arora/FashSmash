@@ -13,6 +13,15 @@
                     @change="changeCam($event)"
                 ></v-select>
             </v-flex>
+             <v-flex xs8 sm4 text-xs-center>
+                <v-select
+                    :items="this.filters"
+                    name="label"
+                    label="Select a Filter" 
+                    item-text="name"
+                    @change="changeFilter($event)"
+                ></v-select>
+            </v-flex>
         </v-layout>
 </template>
 
@@ -22,6 +31,7 @@ export default {
         return {
             videoPaused: true,
             camerasAvalible: [],
+            filters: ['none','toaster']
 
         }
     },
@@ -53,6 +63,14 @@ export default {
                 console.log(err);
             }
         },
+        async changeFilter(event){
+            try{
+                this.$store.dispatch('setFilter', event);
+            }catch{
+                console.log(err)
+            }
+
+        }
     }
 }
 </script>

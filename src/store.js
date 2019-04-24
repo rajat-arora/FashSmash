@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     video: '',
-    cameraNames: []
+    cameraNames: [],
+    filter: ''
   },
   //not async
   mutations: {
@@ -15,6 +16,9 @@ export default new Vuex.Store({
     },
     appendCameraNames(state, payload){
       state.cameraNames.push(payload);
+    },
+    setFilter(state, payload){
+      state.filter = payload;
     }
   },
   //async operations
@@ -24,7 +28,10 @@ export default new Vuex.Store({
     },
     appendCameraNames ({ commit }, payload) {
         commit('appendCameraNames', payload)
-    }
+    },
+    setFilter ({ commit }, payload) {
+      commit('setFilter', payload)
+    },
   },
   getters:{
     getVideo: state => {
@@ -33,5 +40,9 @@ export default new Vuex.Store({
     getCameraNames: state => {
       return state.cameraNames;
     },
+    getFilter: state => {
+      return state.filter;
+    },
+    
   }
 })
