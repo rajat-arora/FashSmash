@@ -124,6 +124,8 @@ export default {
             await this.poseDetectionFrame();
         },
         async poseDetectionFrame(net) {
+            // if (!this.$store.getters.getVideo) return;
+
             const imageScaleFactor = 0.5;
             const outputStride = 8;
             let poses = [];
