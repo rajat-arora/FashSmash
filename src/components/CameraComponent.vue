@@ -221,10 +221,10 @@ export default {
         }
 
         const { y, x } = keypoint.position;
-        this.ctx.beginPath();
-        this.ctx.arc(x * scale, y * scale, 3, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "aqua";
-        this.ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x * scale, y * scale, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "aqua";
+        ctx.fill();
       }
     },
 }
