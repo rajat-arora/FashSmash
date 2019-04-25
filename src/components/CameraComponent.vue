@@ -155,7 +155,7 @@ export default {
                     );
 
                     this.ctx.restore();
-            // filters.filterHandler(this.$store.getters.getFilter, this.ctx,this.canvas)
+            filters.filterHandler(this.$store.getters.getFilter, this.ctx,this.canvas)
     // this.ctx.fillRect(22,22,22,22); // fill in the pixel at (10,10)
 // faceapi.drawLandmarks()
 
