@@ -28,8 +28,19 @@
 </template>
 <script>
 import ButtonsComponent from './ButtonsComponent';
-import * as posenet from "@tensorflow-models/posenet";
 import * as filters from "../utils/filterHandler"
+import * as canvas from 'canvas';
+import * as faceapi from 'face-api.js';
+const { Canvas, Image, ImageData } = canvas
+faceapi.env.monkeyPatch({
+Canvas: HTMLCanvasElement,
+Image: HTMLImageElement,
+ImageData: ImageData,
+Video: HTMLVideoElement,
+createCanvasElement: () => document.createElement('canvas'),
+createImageElement: () => document.createElement('img')
+})
+
 export default {
     data: ()=> {
         return {
@@ -42,7 +53,8 @@ export default {
             canvas: '',
             ctx: '',
             net : '',
-            msg: 'Loading ..'
+            msg: 'Loading ..',
+            detectionsWithLandmarks: []
         }
     },
     mounted(){
@@ -72,14 +84,15 @@ export default {
                 console.log('Available', this.$store.getters.getCameraNames);
                 this.$store.dispatch('setVideo',await this.loadVideo() );
                 this.pageBinded = true;
-                this.msg = 'Starting TensorFlow and loading model...'
-                // await this.sleep(2000);
-                this.net = await posenet.load();
                 const video = this.$store.getters.getVideo;
-                this.msg = 'Feeding camera to model...'
+                this.msg = 'Loading model...'
                 // await this.sleep(2000);
-                await this.detectPoseInRealTime(video, this.net);
+                await faceapi.loadSsdMobilenetv1Model('/models')
+                await faceapi.loadFaceLandmarkModel('/models')
+
                 this.loading = false;
+
+                await this.detectPoseInRealTime();
             } catch(err) {
                 console.error(err);
             }
@@ -116,38 +129,20 @@ export default {
                 };
             });
         },
-        async detectPoseInRealTime(video, net){
+        async detectPoseInRealTime(){
             this.canvas = this.$refs['output'];
             this.ctx = this.canvas.getContext("2d");
             this.canvas.width = 500;
             this.canvas.height = 400;
             await this.poseDetectionFrame();
         },
-        async poseDetectionFrame(net) {
+        async poseDetectionFrame() {
             // if (!this.$store.getters.getVideo) return;
-
-            const imageScaleFactor = 0.5;
-            const outputStride = 8;
-            let poses = [];
-            let minPoseConfidence;
-            let minPartConfidence;
-            const flipHorizontal = true;
             const video = this.$store.getters.getVideo;
             if (this.pageBinded) {
-              //  const pose = await this.net.estimateSinglePose(
-              //       video,
-              //       imageScaleFactor,
-              //       flipHorizontal,
-              //       outputStride
-              //       );
-              //   poses.push(pose);
-
-                minPoseConfidence = 0.2;
-                minPartConfidence = 0.5;
 
                 this.ctx.clearRect(0, 0, this.videoWidth, this.videoHeight);
 
-                 if (this.pageBinded) {
                     this.ctx.save();
                     this.ctx.scale(-1, 1);
                     this.ctx.translate(-this.videoWidth, 0);
@@ -158,24 +153,71 @@ export default {
                         this.videoWidth,
                         this.videoHeight
                     );
+
                     this.ctx.restore();
-                }
+            // filters.filterHandler(this.$store.getters.getFilter, this.ctx,this.canvas)
+    // this.ctx.fillRect(22,22,22,22); // fill in the pixel at (10,10)
+// faceapi.drawLandmarks()
 
-        // For each pose (i.e. person) detected in an image, loop through the poses
-        // and draw the resulting skeleton and keypoints if over certain confidence
-        // scores
-        poses.forEach(({ score, keypoints }) => {
-          if (score >= minPoseConfidence) {
-            // if (guiState.output.showPoints) {
-            this.drawKeypoints(keypoints, minPartConfidence, this.ctx);
-            // }
-            // this.drawSkeleton(keypoints, minPartConfidence, this.ctx);
-          }
-        });
-        filters.filterHandler(this.$store.getters.getFilter, this.ctx,this.canvas)
+this.detectionsWithLandmarks.forEach( (landmarks) =>{
+  // console.log(landmarks.landmarks.getNose())
+  landmarks.landmarks.getJawOutline().forEach((item)=>{
+    const { y, x } = item;
+    // console.log(x+ ' ' + y)
+                    this.ctx.restore();
 
-        poses = null;
-      }
+        this.ctx.beginPath();
+        this.ctx.arc(x * 1, y * 1, 3, 0, 2 * Math.PI);
+                // this.ctx.arc(100, 100, 3, 0, 2 * Math.PI);
+
+        this.ctx.fillStyle = "aqua";
+        this.ctx.fill();
+            // this.ctx.putImageData(this.canvas, 0, 0);
+
+  })
+
+  landmarks.landmarks.getNose().forEach((item)=>{
+    const { y, x } = item;
+    // console.log(x+ ' ' + y)
+                    this.ctx.restore();
+
+        this.ctx.beginPath();
+        this.ctx.arc(x * 1, y * 1, 3, 0, 2 * Math.PI);
+                // this.ctx.arc(100, 100, 3, 0, 2 * Math.PI);
+
+        this.ctx.fillStyle = "aqua";
+        this.ctx.fill();
+            // this.ctx.putImageData(this.canvas, 0, 0);
+
+  })
+
+        // if (drawLines && landmarks instanceof FaceLandmarks68_1.FaceLandmarks68) {
+        //     ctx.strokeStyle = color;
+        //     ctx.lineWidth = lineWidth;
+        //     drawContour_1.drawContour(ctx, landmarks.getJawOutline());
+        //     drawContour_1.drawContour(ctx, landmarks.getLeftEyeBrow());
+        //     drawContour_1.drawContour(ctx, landmarks.getRightEyeBrow());
+        //     drawContour_1.drawContour(ctx, landmarks.getNose());
+        //     drawContour_1.drawContour(ctx, landmarks.getLeftEye(), true);
+        //     drawContour_1.drawContour(ctx, landmarks.getRightEye(), true);
+        //     drawContour_1.drawContour(ctx, landmarks.getMouth(), true);
+        //     return;
+        // }
+        // else draw points
+        // var ptOffset = 3 / 2;
+        // this.ctx.fillStyle = color;
+        // landmarks.landmarks.positions.forEach( (pt) =>{ this.ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, 1, 1); });
+    });
+
+        this.detectionsWithLandmarks = await faceapi
+  .detectAllFaces(this.canvas)
+  .withFaceLandmarks()
+
+
+
+
+
+  }
 
 
       requestAnimationFrame(this.poseDetectionFrame);
