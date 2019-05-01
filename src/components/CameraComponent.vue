@@ -157,39 +157,26 @@ export default {
                     this.ctx.restore();
             filters.filterHandler(this.$store.getters.getFilter, this.ctx,this.canvas)
     // this.ctx.fillRect(22,22,22,22); // fill in the pixel at (10,10)
-// faceapi.drawLandmarks()
+//faceapi.drawLandmarks()
+
 
 this.detectionsWithLandmarks.forEach( (landmarks) =>{
-  // console.log(landmarks.landmarks.getNose())
-  landmarks.landmarks.getJawOutline().forEach((item)=>{
-    const { y, x } = item;
-    // console.log(x+ ' ' + y)
-                    this.ctx.restore();
+  //console.log(landmarks)
 
-        this.ctx.beginPath();
-        this.ctx.arc(x * 1, y * 1, 3, 0, 2 * Math.PI);
-                // this.ctx.arc(100, 100, 3, 0, 2 * Math.PI);
+  landmarks.landmarks.getJawOutline().forEach((item)=> this.drawFaceMapPoint(item))
 
-        this.ctx.fillStyle = "aqua";
-        this.ctx.fill();
-            // this.ctx.putImageData(this.canvas, 0, 0);
+  landmarks.landmarks.getNose().forEach((item)=> this.drawFaceMapPoint(item))
 
-  })
 
-  landmarks.landmarks.getNose().forEach((item)=>{
-    const { y, x } = item;
-    // console.log(x+ ' ' + y)
-                    this.ctx.restore();
+  landmarks.landmarks.getMouth().forEach((item)=> this.drawFaceMapPoint(item))
 
-        this.ctx.beginPath();
-        this.ctx.arc(x * 1, y * 1, 3, 0, 2 * Math.PI);
-                // this.ctx.arc(100, 100, 3, 0, 2 * Math.PI);
+  landmarks.landmarks.getLeftEye().forEach((item)=> this.drawFaceMapPoint(item))
 
-        this.ctx.fillStyle = "aqua";
-        this.ctx.fill();
-            // this.ctx.putImageData(this.canvas, 0, 0);
+  landmarks.landmarks.getRightEye().forEach((item)=> this.drawFaceMapPoint(item))
 
-  })
+  landmarks.landmarks.getLeftEyeBrow().forEach((item)=> this.drawFaceMapPoint(item))
+
+  landmarks.landmarks.getRightEyeBrow().forEach((item)=> this.drawFaceMapPoint(item))
 
         // if (drawLines && landmarks instanceof FaceLandmarks68_1.FaceLandmarks68) {
         //     ctx.strokeStyle = color;
@@ -209,18 +196,19 @@ this.detectionsWithLandmarks.forEach( (landmarks) =>{
         // landmarks.landmarks.positions.forEach( (pt) =>{ this.ctx.fillRect(pt.x - ptOffset, pt.y - ptOffset, 1, 1); });
     });
 
-        this.detectionsWithLandmarks = await faceapi
-  .detectAllFaces(this.canvas)
-  .withFaceLandmarks()
-
-
-
-
-
+    this.detectionsWithLandmarks = await faceapi.detectAllFaces(this.canvas).withFaceLandmarks()
   }
 
 
       requestAnimationFrame(this.poseDetectionFrame);
+    },
+    drawFaceMapPoint(item){
+      const { y, x } = item;
+      this.ctx.restore();
+      this.ctx.beginPath();
+      this.ctx.arc(x * 1, y * 1, 3, 0, 2 * Math.PI);
+      this.ctx.fillStyle = "aqua";
+      this.ctx.fill();
     },
     drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
       if (
