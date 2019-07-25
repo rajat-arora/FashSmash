@@ -7,8 +7,6 @@
 [![Build Status](https://travis-ci.org/rajat-arora/FashSmash.svg?branch=master)](https://travis-ci.org/rajat-arora/FashSmash)
 
 
-
-
 ## Project setup
 ```
 
